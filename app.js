@@ -34,7 +34,7 @@ const server = http.createServer(function(request, response){
             let parsedBody = JSON.parse(body)
             console.log(parsedBody)
             
-            fs.writeFile(`./public/${parsedBody.fileName}`, parsedBody.message, function(err){
+            fs.writeFile(`./public/${parsedBody.fileName}.txt`, parsedBody.message, function(err){
             if (err){
                 response.writeHead(400)
                 response.end("something went wrong")
@@ -47,6 +47,49 @@ const server = http.createServer(function(request, response){
         })
         })
         
+    }
+    else if(request.url === "/update-file" && request.method === "PUT"){
+        let body = ""
+
+        request.on("data", function(data){
+            body += data.toString()
+        })
+
+        request.on("end", function(){
+            let parsedBody = JSON.parse(body)
+
+            fs.writeFile(`./public/${parsedBody.fileName}.txt`, parsedBody.message, function(err){
+                if(err){
+                    response.writeHead(400)
+                    return response.end('Somethng went wrong')
+                }
+                else{
+                    return response.end('File saved')
+                }
+            })
+        })
+    }
+    else if(request.url === '/delete-file' && request.method==="DELETE"){
+        let body = ''
+
+        request.on("data", function(data){
+            body += data.toString()
+        })
+
+        request.on("end", function(){
+            let parsedBody = JSON.parse(body)
+
+            fs.unlink(`./public/${parsedBody.fileName}.txt`, function(err){
+                if(err){
+                    response.writeHead(400)
+                    console.log(err.message)
+                    return response.end('Failed to delete')
+                }
+                else{
+                    return response.end("deleted")
+                }
+            })
+        })
     }
     // else if( request.url === "/games"){
     //     fs.readFile("./public/games.html", function(error, data){
